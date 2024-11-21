@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Event;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class AdminController extends Controller
+{
+    // Menampilkan dashboard admin
+    public function dashboard()
+    {
+        $totalUsers = User::count();
+        $totalEvents = Event::count();
+        // Anda bisa menambahkan data lain seperti laporan penjualan di sini
+        return view('admin.dashboard', compact('totalUsers', 'totalEvents'));
+    }
+
+    // Menampilkan daftar pengguna
+    public function manageUsers()
+    {
+        $users = User::all();
+        return view('admin.users.index', compact('users'));
+    }
+
+    // Menampilkan form untuk membuat pengguna baru
+    public function createUser()
+    {
+        return view('admin.users.create');
+    }
+
+    // Menyimpan pengguna baru
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+            'role' => 'required|in:admin,event_organizer,registered_user,guest',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'role' => $request->role,
+        ]);
+
+        return redirect()->route('admin.users')->with('success', 'Pengguna berhasil dibuat.');
+    }
+
+    // Menampilkan form untuk mengedit pengguna
+    public function editUser($id)
+    {
+        $user = User::findOrFail($id);
+        return view('admin.users.edit', compact('user'));
+    }
+
+    // Memperbarui data pengguna
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,event_organizer,registered_user,guest',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ]);
+
+        return redirect()->route('admin.users')->with('success', 'Pengguna berhasil diperbarui.');
+    }
+
+    // Menghapus pengguna
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('success', 'Pengguna berhasil dihapus.');
+    }
+}
