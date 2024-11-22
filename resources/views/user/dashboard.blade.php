@@ -1,9 +1,9 @@
 @extends('layouts/app')
 
 @section('content')
-    <div name="header" class="pt-20 px-5">
+    <div class="pt-20 px-5">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
+            {{ __('Dashboard User') }}
         </h2>
     </div>
 

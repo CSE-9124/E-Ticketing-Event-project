@@ -11,16 +11,18 @@ class AdminController extends Controller
     // Menampilkan dashboard admin
     public function dashboard()
     {
-        $totalUsers = User::count();
+        $totalUsers = User::where('role', 'user')->count();
+        $totalOrganizers = User::where('role', 'event_organizer')->count();
         $totalEvents = Event::count();
         // Anda bisa menambahkan data lain seperti laporan penjualan di sini
-        return view('admin.dashboard', compact('totalUsers', 'totalEvents'));
+        
+        return view('admin.dashboard', compact('totalUsers', 'totalOrganizers', 'totalEvents'));
     }
 
     // Menampilkan daftar pengguna
     public function manageUsers()
     {
-        $users = User::all();
+        $users = User::paginate(10); // Paginate with 10 users per page
         return view('admin.users.index', compact('users'));
     }
 
@@ -37,7 +39,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
-            'role' => 'required|in:admin,event_organizer,registered_user,guest',
+            'role' => 'required|in:admin,event_organizer,user',
         ]);
 
         User::create([
@@ -65,7 +67,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,event_organizer,registered_user,guest',
+            'role' => 'required|in:admin,event_organizer,user',
         ]);
 
         $user->update([

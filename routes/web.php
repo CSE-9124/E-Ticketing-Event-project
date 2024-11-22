@@ -1,42 +1,43 @@
 <?php
 
-use App\Http\Middleware\Admin;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\EventOrganizerController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\Admin;
+use App\Http\Middleware\Organizer;
+use App\Http\Middleware\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-
-// Admin Routes
-Route::middleware(['auth', Admin::class])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    // Admin Routes
+    Route::middleware([Admin::class])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        
+        // User Management
+        Route::get('/users', [AdminController::class, 'manageUsers'])->name('users');
+        Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
+        Route::post('/users/store', [AdminController::class, 'storeUser'])->name('users.store');
+        Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
+        Route::put('/users/{id}/update', [AdminController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{id}/delete', [AdminController::class, 'deleteUser'])->name('users.delete');
+    });
     
-    // User Management
-    Route::get('/users', [AdminController::class, 'manageUsers'])->name('users');
-    Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
-    Route::post('/users/store', [AdminController::class, 'storeUser'])->name('users.store');
-    Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
-    Route::put('/users/{id}/update', [AdminController::class, 'updateUser'])->name('users.update');
-    Route::delete('/users/{id}/delete', [AdminController::class, 'deleteUser'])->name('users.delete');
-});
-
-// Event_Organizer Routes
-Route::middleware(['auth', 'role:event_organizer'])->prefix('')->name('')->group(function () {
-    // Route::get('/dashboard', [EventOrganizerController::class, 'dashboard'])->name('dashboard');
-});
-
-// User Routes
-Route::middleware(['auth', 'role:user'])->prefix('')->name('')->group(function () {
-    // Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    // Event_Organizer Routes
+    Route::middleware([Organizer::class])->prefix('organizer')->name('organizer.')->group(function () {
+        Route::get('/dashboard', [EventOrganizerController::class, 'dashboard'])->name('dashboard');
+    });
+    
+    // User Routes
+    Route::middleware([User::class])->prefix('user')->name('user.')->group(function () {
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    });
 });
 
 Route::middleware('auth')->group(function () {
