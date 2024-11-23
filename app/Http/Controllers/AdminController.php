@@ -49,6 +49,8 @@ class AdminController extends Controller
             'role' => $request->role,
         ]);
 
+        session()->flash('sukses','User berhasil ditambahkan!');
+
         return redirect()->route('admin.users')->with('success', 'Pengguna berhasil dibuat.');
     }
 
@@ -76,6 +78,8 @@ class AdminController extends Controller
             'role' => $request->role,
         ]);
 
+        session()->flash('update', 'User updated successfully!');
+
         return redirect()->route('admin.users')->with('success', 'Pengguna berhasil diperbarui.');
     }
 
@@ -85,6 +89,8 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
 
-        return redirect()->route('admin.users')->with('success', 'Pengguna berhasil dihapus.');
+        session()->flash('delete', 'User berhasil dihapus!');
+
+        return redirect()->route('admin.users')->with('success', 'User berhasil dihapus.');
     }
 }
