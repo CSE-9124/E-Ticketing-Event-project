@@ -20,6 +20,10 @@ class Event extends Model
         'organizer_id', 
     ];
 
+    protected $casts = [
+        'date_time' => 'datetime',
+    ];
+
     public function organizer()
     {
         return $this->belongsTo(User::class, 'organizer_id');

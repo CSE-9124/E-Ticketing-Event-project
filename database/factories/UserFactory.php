@@ -32,6 +32,30 @@ class UserFactory extends Factory
         ];
     }
 
+    // State for admin users
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
+
+    // State for event organizer users
+    public function eventOrganizer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'event_organizer',
+        ]);
+    }
+
+    // State for regular users
+    public function user(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'user',
+        ]);
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */

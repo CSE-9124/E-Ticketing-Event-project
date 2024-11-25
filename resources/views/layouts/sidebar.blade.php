@@ -20,7 +20,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="{{ route('admin.events') }}"
                         class="block px-4 py-2.5 text-slate-200 font-semibold hover:bg-blue-700 hover:text-yellow-400 rounded-lg transition-all duration-300 ease-in-out">
                         Manage Events
                     </a>
