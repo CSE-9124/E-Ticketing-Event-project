@@ -35,6 +35,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/events/{id}/edit', [AdminController::class, 'editEvent'])->name('events.edit');
         Route::put('/events/{id}/update', [AdminController::class, 'updateEvent'])->name('events.update');
         Route::delete('/events/{id}/delete', [AdminController::class, 'deleteEvent'])->name('events.delete');
+
+        // Ticket Management
+        Route::get('/tickets', [AdminController::class, 'manageTickets'])->name('tickets');
+        Route::get('/tickets/event/{event}', [AdminController::class, 'viewEventTickets'])->name('tickets.event');
+        Route::post('/tickets/{ticket}/approve', [AdminController::class, 'approveTicket'])->name('tickets.approve');
+        Route::post('/tickets/{ticket}/cancel', [AdminController::class, 'cancelTicket'])->name('tickets.cancel');
+
+        // Reports Management
+        Route::get('/reports/sales', [AdminController::class, 'salesReport'])->name('reports.sales');
+        Route::get('/reports/user-activity', [AdminController::class, 'userActivityReport'])->name('reports.user_activity');
     });
 
     // Event_Organizer Routes

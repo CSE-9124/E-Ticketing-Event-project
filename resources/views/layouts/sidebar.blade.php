@@ -26,10 +26,33 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="{{ route('admin.tickets') }}"
                         class="block px-4 py-2.5 text-slate-200 font-semibold hover:bg-blue-700 hover:text-yellow-400 rounded-lg transition-all duration-300 ease-in-out">
-                        Reports
+                        Manage Tickets
                     </a>
+                </li>
+                <li x-data="{ open: false }" class="relative">
+                    <button @click="open = !open"
+                        class="flex items-center justify-between w-full px-4 py-2.5 text-slate-200 font-semibold hover:bg-blue-700 hover:text-yellow-400 rounded-lg transition-all duration-300 ease-in-out">
+                        <span>Reports</span>
+                        <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': open }"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div x-show="open" @click.away="open = false"
+                        class="pl-4 mt-2 space-y-2 transition-all duration-300">
+                        <a href="{{ route('admin.reports.sales') }}"
+                            class="block px-4 py-2 text-slate-200 font-semibold hover:bg-blue-700 hover:text-yellow-400 rounded-lg transition-all duration-300 ease-in-out">
+                            Sales Report
+                        </a>
+                        <a href="{{ route('admin.reports.user_activity') }}"
+                            class="block px-4 py-2 text-slate-200 font-semibold hover:bg-blue-700 hover:text-yellow-400 rounded-lg transition-all duration-300 ease-in-out">
+                            User Activity
+                        </a>
+                    </div>
                 </li>
             @elseif (auth()->user()->role === 'event_organizer')
                 <!-- Event_Organizer Menu -->

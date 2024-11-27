@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -197,5 +200,92 @@ class AdminController extends Controller
         session()->flash('delete', 'Event successfully deleted!');
 
         return redirect()->route('admin.events')->with('success', 'Acara berhasil dihapus.');
+    }
+
+    // Ticket Management
+    public function manageTickets()
+    {
+        $events = Event::withCount([
+            'tickets',
+            'tickets as active_tickets_count' => function ($query) {
+                $query->where('status', 'active');
+            },
+            'tickets as cancelled_tickets_count' => function ($query) {
+                $query->where('status', 'cancelled');
+            }
+        ])->paginate(10);
+
+        return view('admin.tickets.index', compact('events'));
+    }
+
+    public function viewEventTickets($eventId)
+    {
+        $event = Event::with(['tickets' => function ($query) {
+            $query->with('user')->orderBy('created_at', 'desc');
+        }])->findOrFail($eventId);
+
+        return view('admin.tickets.show', compact('event'));
+    }
+
+    public function approveTicket(Ticket $ticket)
+    {
+        if ($ticket->status !== 'active') {
+            $ticket->update([
+                'status' => 'active',
+                'updated_at' => Carbon::now(),
+                'cancel_by' => null
+            ]);
+
+            session()->flash('success', 'Ticket has been approved!');
+        }
+
+        return back();
+    }
+
+    public function cancelTicket(Ticket $ticket)
+    {
+        if ($ticket->status !== 'cancelled') {
+            $ticket->update([
+                'status' => 'cancelled',
+                'cancel_by' => now()
+            ]);
+
+            session()->flash('success', 'Ticket has been cancelled!');
+        }
+
+        return back();
+    }
+
+
+    // Reports
+    public function salesReport()
+    {
+        $reports = DB::table('reports')
+            ->join('events', 'reports.event_id', '=', 'events.id')
+            ->select('events.name as event_name', 'reports.total_sales', 'reports.tickets_sold', 'reports.created_at')
+            ->orderBy('reports.created_at', 'desc')
+            ->get();
+
+        return view('admin.reports.sales', compact('reports'));
+    }
+
+    // Aktivitas Pengguna
+    public function userActivityReport()
+    {
+        $userActivities = DB::table('users')
+            ->leftJoin('tickets', 'users.id', '=', 'tickets.user_id')
+            ->select(
+                'users.id',
+                'users.name',
+                'users.email',
+                DB::raw('COUNT(tickets.id) as total_tickets'),
+                DB::raw('SUM(tickets.status = "active") as active_tickets'),
+                DB::raw('SUM(tickets.status = "cancelled") as cancelled_tickets')
+            )
+            ->groupBy('users.id', 'users.name', 'users.email')
+            ->orderBy('total_tickets', 'desc')
+            ->get();
+
+        return view('admin.reports.user_activity', compact('userActivities'));
     }
 }
