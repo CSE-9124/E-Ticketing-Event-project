@@ -15,7 +15,8 @@ class Event extends Model
         'date_time',
         'location',
         'ticket_price',
-        'ticket_quota',     
+        'ticket_quota',
+        'category',    
         'event_image',
         'organizer_id', 
     ];

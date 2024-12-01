@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->dateTime('date_time');
             $table->string('location');
+            $table->enum('category', ['music', 'sport', 'conference', 'culiner', 'theater', 'festival', 'others']);
             $table->decimal('ticket_price', 10, 2);
             $table->integer('ticket_quota');
             $table->string('event_image')->nullable();
