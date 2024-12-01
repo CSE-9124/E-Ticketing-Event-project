@@ -12,7 +12,7 @@ export default {
         "./node_modules/flowbite/**/*.js"
     ],
 
-    darkMode: 'media',
+    // darkMode: 'media',
 
     theme: {
         extend: {
