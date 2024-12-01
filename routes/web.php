@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EventOrganizerController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\Admin;
@@ -10,9 +11,8 @@ use App\Http\Middleware\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Home Routes
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -50,6 +50,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Event_Organizer Routes
     Route::middleware([Organizer::class])->prefix('organizer')->name('organizer.')->group(function () {
         Route::get('/dashboard', [EventOrganizerController::class, 'dashboard'])->name('dashboard');
+
+        // Event Management
+        Route::get('/events', [EventOrganizerController::class, 'manageEvents'])->name('events');
+        Route::get('/events/create', [EventOrganizerController::class, 'createEvent'])->name('events.create');
+        Route::post('/events/store', [EventOrganizerController::class, 'storeEvent'])->name('events.store');
+        Route::get('/events/{id}/edit', [EventOrganizerController::class, 'editEvent'])->name('events.edit');
+        Route::put('/events/{id}/update', [EventOrganizerController::class, 'updateEvent'])->name('events.update');
+        Route::delete('/events/{id}/delete', [EventOrganizerController::class, 'deleteEvent'])->name('events.delete');
+
+        // Ticket Management
+        Route::get('/tickets', [EventOrganizerController::class, 'manageTickets'])->name('tickets');
+        Route::get('/tickets/event/{event}', [EventOrganizerController::class, 'viewEventTickets'])->name('tickets.event');
+        Route::post('/tickets/{ticket}/approve', [EventOrganizerController::class, 'approveTicket'])->name('tickets.approve');
+        Route::post('/tickets/{ticket}/cancel', [EventOrganizerController::class, 'cancelTicket'])->name('tickets.cancel');
     });
 
     // User Routes
