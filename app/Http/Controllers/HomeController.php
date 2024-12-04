@@ -15,6 +15,6 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        return view('welcome', compact('latestEvents', 'popularEvents'));
+        return view('content.homepage', compact('latestEvents', 'popularEvents'));
     }
 }

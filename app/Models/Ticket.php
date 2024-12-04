@@ -17,6 +17,11 @@ class Ticket extends Model
         'cancel_by',
     ];
 
+    protected $casts = [
+        'booking_date' => 'datetime',
+        'cancel_by' => 'datetime',
+    ];
+
     public function event()
     {
         return $this->belongsTo(Event::class);

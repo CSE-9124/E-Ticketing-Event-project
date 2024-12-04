@@ -3,10 +3,10 @@
 @section('title', 'Manage Tickets')
 
 @section('content')
-    <div class="py-20 px-5">
+    <div class="py-10 px-5">
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Ticket Management</h1>
+            <h1 class="text-3xl font-semibold text-gray-900 dark:text-white">Ticket Management</h1>
         </div>
 
         <!-- Events Table -->

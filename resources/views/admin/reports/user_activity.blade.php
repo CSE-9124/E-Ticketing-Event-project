@@ -3,10 +3,10 @@
 @section('title', 'User Activity Report')
 
 @section('content')
-<div class="py-20 px-5">
+<div class="py-10 px-5">
     <!-- Header -->
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">User Activity Report</h1>
+        <h1 class="text-3xl font-semibold text-gray-900 dark:text-white">User Activity Report</h1>
     </div>
 
     <!-- User Activity Table -->

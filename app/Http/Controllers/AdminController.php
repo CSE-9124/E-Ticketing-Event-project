@@ -18,16 +18,41 @@ class AdminController extends Controller
         $totalUsers = User::where('role', 'user')->count();
         $totalOrganizers = User::where('role', 'event_organizer')->count();
         $totalEvents = Event::count();
-        // Anda bisa menambahkan data lain seperti laporan penjualan di sini
+        $totalRevenue = Ticket::where('status', 'active')
+            ->join('events', 'tickets.event_id', '=', 'events.id')
+            ->sum('events.ticket_price');
 
-        return view('admin.dashboard', compact('totalUsers', 'totalOrganizers', 'totalEvents'));
+        return view('admin.dashboard', compact('totalUsers', 'totalOrganizers', 'totalEvents', 'totalRevenue'));
     }
 
     // User Management
     // Menampilkan daftar pengguna
-    public function manageUsers()
+    public function manageUsers(Request $request)
     {
-        $users = User::paginate(10); // Paginate with 10 users per page
+        $query = User::query();
+
+        // Search functionality
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Role filter
+        if ($request->has('role') && $request->role != 'all') {
+            $query->where('role', $request->role);
+        }
+
+        // Sorting
+        $sortField = $request->sort ?? 'created_at';
+        $sortDirection = $request->direction ?? 'desc';
+        $query->orderBy($sortField, $sortDirection);
+
+        $users = $query->paginate(10);
+        $users->appends(request()->query());
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -102,9 +127,26 @@ class AdminController extends Controller
 
     // Event Management
     // Menampilkan daftar event
-    public function manageEvents()
+    public function manageEvents(Request $request)
     {
-        $events = Event::paginate(10); // Paginate with 10 events per page
+        $query = Event::with('organizer');
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('category') && $request->category != '') {
+            $query->where('category', $request->category);
+        }
+
+        $events = $query->latest()->paginate(10);
+        $events->appends(request()->query());
+
         return view('admin.events.index', compact('events'));
     }
 
@@ -122,6 +164,7 @@ class AdminController extends Controller
             'description' => 'required',
             'date_time' => 'required|date',
             'location' => 'required|string|max:255',
+            'category' => 'required|in:music,sport,conference,culiner,theater,festival,others',
             'ticket_price' => 'required|numeric|min:0',
             'ticket_quota' => 'required|integer|min:1',
             'event_image' => 'nullable|image|max:2048',
@@ -139,6 +182,7 @@ class AdminController extends Controller
             'description' => $request->description,
             'date_time' => $request->date_time,
             'location' => $request->location,
+            'category' => $request->category,
             'ticket_price' => $request->ticket_price,
             'ticket_quota' => $request->ticket_quota,
             'event_image' => $imagePath,
@@ -260,13 +304,42 @@ class AdminController extends Controller
     // Reports
     public function salesReport()
     {
-        $reports = DB::table('reports')
-            ->join('events', 'reports.event_id', '=', 'events.id')
-            ->select('events.name as event_name', 'reports.total_sales', 'reports.tickets_sold', 'reports.created_at')
-            ->orderBy('reports.created_at', 'desc')
+        $salesData = DB::table('events')
+            ->leftJoin('tickets', 'events.id', '=', 'tickets.event_id')
+            ->select(
+                'events.id',
+                'events.name as event_name',
+                'events.ticket_price',
+                DB::raw('COUNT(CASE WHEN tickets.status = "active" THEN 1 END) as active_tickets'),
+                DB::raw('COUNT(CASE WHEN tickets.status = "cancelled" THEN 1 END) as cancelled_tickets'),
+                DB::raw('COUNT(tickets.id) as total_tickets'),
+                DB::raw('SUM(CASE WHEN tickets.status = "active" THEN events.ticket_price ELSE 0 END) as total_sales'),
+                'events.created_at'
+            )
+            ->groupBy('events.id', 'events.name', 'events.ticket_price', 'events.created_at')
+            ->orderBy('total_sales', 'desc')
             ->get();
 
-        return view('admin.reports.sales', compact('reports'));
+        $dailySales = DB::table('tickets')
+            ->join('events', 'tickets.event_id', '=', 'events.id')
+            ->where('tickets.status', 'active')
+            ->where('tickets.created_at', '>=', now()->subDays(30))
+            ->select(
+                DB::raw('DATE(tickets.created_at) as date'),
+                DB::raw('COUNT(*) as tickets_sold'),
+                DB::raw('SUM(events.ticket_price) as daily_revenue')
+            )
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        return view('admin.reports.sales', [
+            'reports' => $salesData,
+            'dailySales' => $dailySales,
+            'totalRevenue' => $salesData->sum('total_sales'),
+            'totalTickets' => $salesData->sum('active_tickets'),
+            'totalEvents' => $salesData->count()
+        ]);
     }
 
     // Aktivitas Pengguna

@@ -23,6 +23,13 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $name = $this->faker->name();
+        $role = $this->faker->randomElement(['admin', 'event_organizer', 'user']);
+
+        if ($role === 'event_organizer') {
+            $name = $name . $this->faker->randomElement(['.Inc', '.Corp']);
+        };
+
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
@@ -43,7 +50,10 @@ class UserFactory extends Factory
     // State for event organizer users
     public function eventOrganizer(): static
     {
+        $name = $this->faker->name() . $this->faker->randomElement(['.Inc', '.Corp']);
+
         return $this->state(fn (array $attributes) => [
+            'name' => $name,
             'role' => 'event_organizer',
         ]);
     }

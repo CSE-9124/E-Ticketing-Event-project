@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('status', ['active', 'cancelled']);
+            $table->enum('status', ['pending', 'active', 'cancelled']);
             // $table->dateTime('booking_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('booking_date');
             $table->dateTime('cancel_by')->nullable();

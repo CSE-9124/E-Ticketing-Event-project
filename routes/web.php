@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventOrganizerController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
@@ -13,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 
 // Home Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/events', [EventController::class, 'index'])->name('events');
+Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+Route::post('/events/{event}/favorite', [EventController::class, 'toggleFavorite'])->middleware('auth')->name('events.favorite');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -69,6 +76,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // User Routes
     Route::middleware([User::class])->prefix('user')->name('user.')->group(function () {
         Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+
+        // Booking Management
+        Route::get('/bookings', [BookingController::class, 'index'])->name('bookings');
+        Route::post('/events/{event}/book', [BookingController::class, 'store'])->name('bookings.store');
+        Route::get('/bookings/{ticket}', [BookingController::class, 'show'])->name('bookings.show');
+        Route::post('/bookings/{ticket}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+
+        // Favorite Events Routes
+        Route::get('/favorites', [UserController::class, 'favoriteEvents'])->name('favorites');
     });
 });
 

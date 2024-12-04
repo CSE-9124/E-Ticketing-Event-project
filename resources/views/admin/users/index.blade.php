@@ -3,14 +3,121 @@
 @section('title', 'Manage Users')
 
 @section('content')
-    <div class="py-20 px-5">
-        <!-- Header Section -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Manage Users</h1>
-            <a href="{{ route('admin.users.create') }}"
-                class="px-4 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-600 transition-colors duration-200">
-                Add New User
-            </a>
+    <div class="py-10 px-5">
+        <!-- Header Section with Stats -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-4">Manage Users</h1>
+                <a href="{{ route('admin.users.create') }}"
+                    class="px-4 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2">
+                    <ion-icon name="person-add-outline" class="text-xl"></ion-icon>
+                    <span>Add New User</span>
+                </a>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 mr-4">
+                            <ion-icon name="people" class="text-xl text-blue-600 dark:text-blue-400"></ion-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $users->total() }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                @php
+                    $roleStats = $users->groupBy('role')->map->count();
+                @endphp
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-red-100 dark:bg-red-900 mr-4">
+                            <ion-icon name="shield" class="text-xl text-red-600 dark:text-red-400"></ion-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Admins</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $roleStats['admin'] ?? 0 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900 mr-4">
+                            <ion-icon name="briefcase" class="text-xl text-yellow-600 dark:text-yellow-400"></ion-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Organizers</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                                {{ $roleStats['event_organizer'] ?? 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 mr-4">
+                            <ion-icon name="person" class="text-xl text-green-600 dark:text-green-400"></ion-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Regular Users</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $roleStats['user'] ?? 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+            <form class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                    <div class="relative">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Search by name or email..."
+                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white pr-10">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <ion-icon name="search" class="text-gray-400"></ion-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Role</label>
+                    <select name="role"
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <option value="all">All Roles</option>
+                        <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="event_organizer" {{ request('role') === 'event_organizer' ? 'selected' : '' }}>Event
+                            Organizer</option>
+                        <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>User</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort by</label>
+                    <select name="sort"
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>Date Created
+                        </option>
+                        <option value="name" {{ request('sort') === 'name' ? 'selected' : '' }}>Name</option>
+                        <option value="email" {{ request('sort') === 'email' ? 'selected' : '' }}>Email</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end">
+                    <button type="submit"
+                        class="w-full px-4 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 transition-colors duration-200">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
         </div>
 
         <!-- Session Messages -->
@@ -71,7 +178,7 @@
         @endif
 
         <!-- Search and Filter Section -->
-        <div class="mb-6 flex gap-4">
+        {{-- <div class="mb-6 flex gap-4">
             <div class="flex-1">
                 <form class="flex gap-2">
                     <input type="text" name="search" placeholder="Search users..."
@@ -82,7 +189,7 @@
                     </button>
                 </form>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Users Table -->
         <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-2xl">
@@ -107,10 +214,15 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    @foreach ($users as $user)
+                    @forelse ($users as $user)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $user->name }}</div>
+                                <div class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center dark:bg-gray-700">
+                                        <span class="text-sm font-medium text-gray-600 dark:text-gray-800">{{ substr($user->name, 0, 1) }}</span>
+                                    </div>
+                                    {{ $user->name }}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-500 dark:text-gray-300">{{ $user->email }}</div>
@@ -135,9 +247,8 @@
                                     <a href="#"
                                         onclick="openEditModal('{{ $user->id }}', '{{ $user->name }}', '{{ $user->email }}', '{{ $user->role }}')"
                                         class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center">
-                                        <svg class="w-5 h-5" aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                            viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" fill="none" viewBox="0 0 24 24">
                                             <path stroke="currentColor" stroke-linecap="square" stroke-linejoin="round"
                                                 stroke-width="2"
                                                 d="M7 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h1m4-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm7.441 1.559a1.907 1.907 0 0 1 0 2.698l-6.069 6.069L10 19l.674-3.372 6.07-6.07a1.907 1.907 0 0 1 2.697 0Z" />
@@ -163,7 +274,13 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500 dark:text-gray-300">
+                                No users found.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -262,4 +379,18 @@
             }
         });
     </script>
+
+    @push('scripts')
+        <script>
+            // Add any JavaScript for interactivity
+            document.addEventListener('DOMContentLoaded', function() {
+                // Auto-submit form when sort or role changes
+                document.querySelectorAll('select[name="role"], select[name="sort"]').forEach(select => {
+                    select.addEventListener('change', () => {
+                        select.closest('form').submit();
+                    });
+                });
+            });
+        </script>
+    @endpush
 @endsection

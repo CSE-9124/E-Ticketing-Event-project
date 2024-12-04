@@ -40,8 +40,9 @@ class Event extends Model
         return $this->hasMany(Review::class);
     }
 
-    public function favoriteByUsers()
+    public function favoriteBy()
     {
-        return $this->belongsToMany(User::class, 'favorite_events');  
+        return $this->belongsToMany(User::class, 'favorite_events')
+            ->withTimestamps();  
     }
 }

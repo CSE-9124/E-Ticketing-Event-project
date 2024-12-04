@@ -75,7 +75,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                     <!-- Event Image -->
                     <img class="w-full h-48 object-cover"
-                        src="{{ $event->event_image ? asset('storage/' . $event->event_image) : asset('images/default-event.jpg') }}"
+                        src="{{ $event->event_image ? asset('storage/' . $event->event_image) : "https://via.placeholder.com/400x300" }}"
                         alt="{{ $event->name }}">
 
                     <!-- Event Details -->

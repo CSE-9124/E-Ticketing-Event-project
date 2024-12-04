@@ -120,7 +120,7 @@
                     </div>
                 </li>
 
-            {{-- Event Organizer Menu --}}
+                {{-- Event Organizer Menu --}}
             @elseif (auth()->user()->role === 'event_organizer')
                 <li class="relative w-full list-none rounded-tr-[50px] rounded-br-[50px] hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-300 ease-in-out"
                     id="dashboard">
@@ -160,16 +160,44 @@
                         </span>
                     </a>
                 </li>
-            
-            {{-- Registerd User Menu --}}
+
+                {{-- Registerd User Menu --}}
             @elseif (auth()->user()->role === 'user')
-                <li class="relative w-full list-none rounded-tl-[30px] rounded-bl-[30px] hover:bg-gray-50" id="dashboard">
-                    <a href="#" class="flex w-full text-white font-semibold no-underline hover:text-blue-600">
+                <li class="relative w-full list-none rounded-tr-[50px] rounded-br-[50px] hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-300 ease-in-out"
+                    id="dashboard">
+                    <a href="{{ route('user.dashboard') }}"
+                        class="flex w-full text-white font-semibold no-underline hover:text-yellow-400">
                         <span class="icon relative block min-w-[60px] h-[60px] leading-[75px] text-center">
                             <ion-icon name="home-outline" class="text-[1.75rem]"></ion-icon>
                         </span>
                         <span class="title relative block px-[10px] h-[60px] leading-[60px] text-start whitespace-nowrap">
                             Dashboard
+                        </span>
+                    </a>
+                </li>
+
+                <li class="relative w-full list-none rounded-tr-[50px] rounded-br-[50px] hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-300 ease-in-out"
+                    id="dashboard">
+                    <a href="{{ route('user.bookings') }}"
+                        class="flex w-full text-white font-semibold no-underline hover:text-yellow-400">
+                        <span class="icon relative block min-w-[60px] h-[60px] leading-[75px] text-center">
+                            <ion-icon name="time-outline" class="text-[1.75rem]"></ion-icon>
+                        </span>
+                        <span class="title relative block px-[10px] h-[60px] leading-[60px] text-start whitespace-nowrap">
+                            Bookings History
+                        </span>
+                    </a>
+                </li>
+
+                <li class="relative w-full list-none rounded-tr-[50px] rounded-br-[50px] hover:bg-gray-50 dark:hover:bg-gray-900 transition-all duration-300 ease-in-out"
+                    id="dashboard">
+                    <a href="{{ route('user.favorites') }}"
+                        class="flex w-full text-white font-semibold no-underline hover:text-yellow-400">
+                        <span class="icon relative block min-w-[60px] h-[60px] leading-[75px] text-center">
+                            <ion-icon name="heart-outline" class="text-[1.75rem]"></ion-icon>
+                        </span>
+                        <span class="title relative block px-[10px] h-[60px] leading-[60px] text-start whitespace-nowrap">
+                            Favorite Events
                         </span>
                     </a>
                 </li>
